@@ -46,9 +46,5 @@ status_summary_2023-04-08_09-49-33.csv
 ```
 
 ## License
+This project is licensed under the MIT License. You are free to use it in your projects.
 
-<<<<<<< HEAD
-This project is licensed under the MIT License. You are free to use it in your projects.
-=======
-This project is licensed under the MIT License. You are free to use it in your projects.
->>>>>>> 53d8c783e5cb67613e1de4895c3d56f5cbff798c
