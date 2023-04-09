@@ -2,9 +2,9 @@ from scrapy.exporters import CsvItemExporter
 
 
 class CustomCsvItemExporter(CsvItemExporter):
-    header_map = {'number': 'Номер',
-                  'name': 'Название',
-                  'status': 'Статус'}
+    header_map = {'number': 'Number',
+                  'name': 'Name',
+                  'status': 'Status'}
 
     def _write_headers_and_set_fields_to_export(self, item):
         if not self.include_headers_line:

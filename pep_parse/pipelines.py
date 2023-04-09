@@ -4,9 +4,7 @@ from pathlib import Path
 
 from scrapy.exceptions import DropItem
 
-from pep_parse.constants import DATETIME_FORMAT, RESULTS_PEP, FILE_NAME
-
-BASE_DIR = Path(__file__).parent.parent
+from pep_parse.constants import DATETIME_FORMAT, RESULTS_PEP, FILE_NAME, RESULTS_DIR
 
 
 class PepParsePipeline:
@@ -37,7 +35,6 @@ class PepParsePipeline:
     def close_spider(self, spider):
         for status, count_status in self.status_count_total.items():
             RESULTS_PEP.append((status, count_status))
-        RESULTS_DIR = BASE_DIR / 'results'
         RESULTS_DIR.mkdir(exist_ok=True)
         now = dt.datetime.now()
         now_formatted = now.strftime(DATETIME_FORMAT)
