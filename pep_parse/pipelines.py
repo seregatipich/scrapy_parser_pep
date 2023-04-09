@@ -1,10 +1,10 @@
 import csv
 import datetime as dt
-from pathlib import Path
 
 from scrapy.exceptions import DropItem
 
-from pep_parse.constants import DATETIME_FORMAT, RESULTS_PEP, FILE_NAME, RESULTS_DIR
+from pep_parse.constants import DATETIME_FORMAT, RESULTS_PEP, \
+                                FILE_NAME, RESULTS_DIR
 
 
 class PepParsePipeline:
