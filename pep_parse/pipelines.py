@@ -4,7 +4,7 @@ import datetime as dt
 from scrapy.exceptions import DropItem
 
 from pep_parse.constants import DATETIME_FORMAT, RESULTS_PEP, \
-                                FILE_NAME, RESULTS_DIR
+    FILE_NAME, RESULTS_DIR
 
 
 class PepParsePipeline:
@@ -29,7 +29,6 @@ class PepParsePipeline:
             self.status_count_total['Total'] += 1
         except KeyError:
             raise DropItem(f'Несуществующий статус: {status}')
-
         return item
 
     def close_spider(self, spider):
