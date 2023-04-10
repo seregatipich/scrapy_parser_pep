@@ -1,27 +1,33 @@
 import scrapy
 
 from pep_parse.items import PepParseItem
-from pep_parse.utils import parse_status
 
 
 class PepSpider(scrapy.Spider):
-    """Собирает информацию о стандартах PEP."""
     name = 'pep'
     allowed_domains = ['peps.python.org']
     start_urls = ['https://peps.python.org/']
 
     def parse(self, response):
-        all_peps = response.css(
-            'table.pep-zero-table'
-        ).css('tbody').css('a[href^="pep-"]')
-        for pep_link in all_peps:
-            yield response.follow(pep_link, callback=self.parse_pep)
+        pep_links = response.css(
+            'section[id=numerical-index] tbody a::attr(href)'
+        )
+        for link in pep_links:
+            yield response.follow(link, callback=self.parse_pep)
 
     def parse_pep(self, response):
-        pep_detail = response.css('h1.page-title::text').get()
+        # получаем заголовок PEP
+        header = response.xpath('//*[@class="page-title"]/text()').get()
+        # получаем из заголовка номер PEP
+        pep_number = header.split('-')[0].replace('PEP', '').strip()
+        # извлекаем из заголовка название PEP
+        pep_name = header.split('–')[1].strip()
+        # извлекаем статус PEP
+        pep_status = response.css('dd.field-even').xpath('//abbr/text()').get()
+
         data = {
-            'number': int(pep_detail.split()[1].strip()),
-            'name': pep_detail.strip(),
-            'status': parse_status(response),
+            'number': pep_number,
+            'name': pep_name,
+            'status': pep_status
         }
         yield PepParseItem(data)

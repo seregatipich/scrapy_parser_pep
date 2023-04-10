@@ -1,44 +1,49 @@
 import csv
 import datetime as dt
+import logging
 
-from scrapy.exceptions import DropItem
+from pep_parse.settings import BASE_DIR
 
-from pep_parse.constants import DATETIME_FORMAT, RESULTS_PEP, \
-    FILE_NAME, RESULTS_DIR
+PEP_STATUSES_COUNT = {
+    'Accepted': 0,
+    'Active': 0,
+    'Deferred': 0,
+    'Draft': 0,
+    'Final': 0,
+    'Provisional': 0,
+    'Rejected': 0,
+    'Superseded': 0,
+    'Withdrawn': 0
+}
+
+results = []
 
 
 class PepParsePipeline:
-    def open_spider(self, spider):
-        self.status_count_total = {
-            'Active': 0,
-            'Accepted': 0,
-            'Deferred': 0,
-            'Final': 0,
-            'Provisional': 0,
-            'Rejected': 0,
-            'Superseded': 0,
-            'Withdrawn': 0,
-            'Draft': 0,
-            'Total': 0
-        }
 
     def process_item(self, item, spider):
-        status = item['status']
+        extraction = item['status']
         try:
-            self.status_count_total[status] += 1
-            self.status_count_total['Total'] += 1
+            count = PEP_STATUSES_COUNT[extraction]
+            count += 1
+            PEP_STATUSES_COUNT[extraction] = count
         except KeyError:
-            raise DropItem(f'Несуществующий статус: {status}')
+            logging.error(f'В словарь {PEP_STATUSES_COUNT} поступил'
+                          f'непредусмотренный ключ')
+
         return item
 
-    def close_spider(self, spider):
-        for status, count_status in self.status_count_total.items():
-            RESULTS_PEP.append((status, count_status))
-        RESULTS_DIR.mkdir(exist_ok=True)
-        now = dt.datetime.now()
-        now_formatted = now.strftime(DATETIME_FORMAT)
-        file_path = RESULTS_DIR / FILE_NAME.format(now_formatted)
+    def open_spider(self, spider):
+        pass
 
-        with open(file_path, 'w', encoding='utf-8') as file:
-            writer = csv.writer(file, dialect='unix', quoting=csv.QUOTE_NONE)
-            writer.writerows(RESULTS_PEP)
+    def close_spider(self, spider):
+        results.extend(PEP_STATUSES_COUNT.items())
+        total = sum(PEP_STATUSES_COUNT.values())
+        results.append(('Total', total))
+
+        with open(f'{BASE_DIR}/results/status_summary_'
+                  f'{dt.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")}.csv',
+                  'w', encoding='utf-8') as f:
+            writer = csv.writer(f, dialect='unix')
+            f.write('Status, Amount\n')
+            writer.writerows(results)
